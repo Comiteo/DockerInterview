@@ -1,0 +1,50 @@
+version: '2.1'
+
+services:
+    test_redis:
+        container_name: test_redis
+        image: redis:latest
+        ports:
+            - 6379:6379
+        expose:
+            - 6379
+        sysctls:
+            - net.core.somaxconn=1024
+        command: redis-server --requirepass test
+    test_php71:
+        container_name: test_php71
+        build: ./docker/php7.1-fpm
+        depends_on:
+            - test_redis
+            - test_maildev
+        env_file:
+            - ./docker/env/test.env
+        volumes:
+            - ./docker/php7.1-fpm/conf.d/99-custom.ini:/usr/local/etc/php/conf.d/99-custom.ini:ro
+            - ../Test:/var/www/test:delegated
+    test_nginx:
+        container_name: test_nginx
+        image: nginx:1.13
+        ports:
+            - 80:80
+        depends_on:
+            - test_php71
+        volumes_from:
+            - test_php71
+        volumes:
+            - ./docker/nginx/conf.d/test.conf:/etc/nginx/conf.d/test.conf:ro
+    test_maildev:
+        container_name: test_maildev
+        image: djfarrelly/maildev:latest
+        ports:
+            - 1080:80
+            - 1025:25
+    test_mysql:
+        container_name: test_mysql
+        image: mysql:5.7
+        restart: always
+        ports:
+            - "53306:3306"
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
+            - MYSQL_DATABASE=test

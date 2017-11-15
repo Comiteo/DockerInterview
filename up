@@ -1,0 +1,5 @@
+ #!/usr/bin/env bash
+
+docker-compose up -d
+docker-compose restart test_php71
+docker exec -ti test_php71 bash
