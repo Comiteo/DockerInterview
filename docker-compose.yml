@@ -21,7 +21,7 @@ services:
             - ./docker/env/test.env
         volumes:
             - ./docker/php7.1-fpm/conf.d/99-custom.ini:/usr/local/etc/php/conf.d/99-custom.ini:ro
-            - ../Test:/var/www/test:delegated
+            - ../InterviewTest:/var/www/test:delegated
     test_nginx:
         container_name: test_nginx
         image: nginx:1.13
